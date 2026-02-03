@@ -2,105 +2,79 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <title>Registro de Alumnos</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title></title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
-    <div class="container" id="app">
-        <div class="row">
-            <div class="col-6">
-                <form id="frmAlumnos" @submit.prevent="guardarAlumno" @reset.prevent="limpiarFormulario">
-                    <div class="card text-bg-dark mb-3" style="max-width: 36rem;">
-                        <div class="card-header">REGISTRO DE ALUMNOS</div>
-                        <div class="card-body">
-                            <div class="row p-1">
-                                <div class="col-3">
-                                    CODIGO:
-                                </div>
-                                <div class="col-3">
-                                    <input placeholder="codigo" required v-model="alumno.codigo" type="text" class="form-control">
-                                </div>
-                            </div>
-                            <div class="row p-1">
-                                <div class="col-3">
-                                    NOMBRE:
-                                </div>
-                                <div class="col-6">
-                                    <input placeholder="nombre" required v-model="alumno.nombre" type="text" class="form-control">
-                                </div>
-                            </div>
-                            <div class="row p-1">
-                                <div class="col-3">
-                                    DIRECCION:
-                                </div>
-                                <div class="col-9">
-                                    <input placeholder="direccion" required v-model="alumno.direccion" type="text" class="form-control">
-                                </div>
-                            </div>
-                            <div class="row p-1">
-                                <div class="col-3">
-                                    EMAIL:
-                                </div>
-                                <div class="col-6">
-                                    <input placeholder="email" required v-model="alumno.email" type="text" class="form-control">
-                                </div>
-                            </div>
-                            <div class="row p-1">
-                                <div class="col-3">
-                                    TELEFONO:
-                                </div>
-                                <div class="col-4">
-                                    <input placeholder="telefono" required v-model="alumno.telefono" type="text" class="form-control">
-                                </div>
-                            </div>
-                        </div>
-                        <div class="card-footer">
-                            <div class="row">
-                                <div class="col text-center">
-                                    <button type="submit" id="btnGuardarAlumno" class="btn btn-primary">GUARDAR</button>
-                                    <button type="reset" id="btnCancelarAlumno" class="btn btn-warning">NUEVO</button>
-                                </div>
-                            </div>
-                        </div>
+
+<div class="container mt-4" id="app">
+    <div class="row">
+        <div class="col-6">
+            <form @submit.prevent="guardarAlumno" @reset.prevent="limpiarFormulario">
+                <div class="card">
+                    <div class="card-header bg-dark text-white">
+                        REGISTRO DE ALUMNOS
                     </div>
-                </form>
-            </div>
-            <div class="col-6">
-                <table class="table table-striped table-hover" id="tblAlumnos">
-                    <thead>
-                        <tr>
-                            <th colspan="6">
-                                <input autocomplete="off" type="search" @keyup="obtenerAlumnos()" v-model="buscar" placeholder="Buscar alumno" class="form-control">
-                            </th>
-                        </tr>
-                        <tr>
-                            <th>CODIGO</th>
-                            <th>NOMBRE</th>
-                            <th>DIRECCION</th>
-                            <th>EMAIL</th>
-                            <th>TELEFONO</th>
-                            <th></th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr v-for="alumno in alumnos" :key="alumno.id" @click="modificarAlumno(alumno)">
-                            <td>{{ alumno.codigo }}</td>
-                            <td>{{ alumno.nombre }}</td>
-                            <td>{{ alumno.direccion }}</td>
-                            <td>{{ alumno.email }}</td>
-                            <td>{{ alumno.telefono }}</td>
-                            <td>
-                                <button class="btn btn-danger" @click="eliminarAlumno(alumno.id, $event)">DEL</button>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
+                    <div class="card-body">
+
+                        <input class="form-control mb-2" placeholder="Código" v-model="alumno.codigo" required>
+                        <input class="form-control mb-2" placeholder="Nombre" v-model="alumno.nombre" required>
+                        <input class="form-control mb-2" placeholder="Dirección" v-model="alumno.direccion" required>
+                        <input class="form-control mb-2" placeholder="Municipio" v-model="alumno.municipio" required>
+                        <input class="form-control mb-2" placeholder="Departamento" v-model="alumno.departamento" required>
+                        <input class="form-control mb-2" placeholder="Teléfono" v-model="alumno.telefono" required>
+                        <input type="date" class="form-control mb-2" v-model="alumno.fecha_nacimiento" required>
+
+                        <select class="form-control mb-2" v-model="alumno.sexo" required>
+                            <option value="">Seleccione sexo</option>
+                            <option value="Masculino">Masculino</option>
+                            <option value="Femenino">Femenino</option>
+                        </select>
+
+                        <input type="email" class="form-control mb-2" placeholder="Email" v-model="alumno.email" required>
+
+                    </div>
+                    <div class="card-footer text-center">
+                        <button class="btn btn-primary">GUARDAR</button>
+                        <button type="reset" class="btn btn-warning">NUEVO</button>
+                    </div>
+                </div>
+            </form>
         </div>
-    
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-    <script src="main.js"></script>
+
+        <div class="col-6">
+            <input type="search" class="form-control mb-2" placeholder="Buscar alumno" v-model="buscar" @keyup="obtenerAlumnos()">
+
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Código</th>
+                        <th>Nombre</th>
+                        <th>Municipio</th>
+                        <th>Teléfono</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="alumno in alumnos" :key="alumno.id" @click="modificarAlumno(alumno)">
+                        <td>{{ alumno.codigo }}</td>
+                        <td>{{ alumno.nombre }}</td>
+                        <td>{{ alumno.municipio }}</td>
+                        <td>{{ alumno.telefono }}</td>
+                        <td>
+                            <button class="btn btn-danger btn-sm" @click="eliminarAlumno(alumno.id, $event)">DEL</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+<script src="main.js"></script>
+
 </body>
 </html>

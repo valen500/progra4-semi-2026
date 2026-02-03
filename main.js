@@ -7,8 +7,12 @@ createApp({
                 codigo:"",
                 nombre:"",
                 direccion:"",
-                email:"",
-                telefono:""
+                municipio:"",
+                departamento:"",
+                telefono:"",
+                fecha_nacimiento:"",
+                sexo:"",
+                email:""
             },
             accion:'nuevo',
             id:0,
@@ -22,10 +26,12 @@ createApp({
             this.alumnos = [];
             for(let i=0; i<n; i++){
                 let key = localStorage.key(i);
-                if( Number(key) ){
+                if(Number(key)){
                     let data = JSON.parse(localStorage.getItem(key));
-                    if( data.nombre.toUpperCase().includes(this.buscar.toUpperCase()) || 
-                        data.codigo.toUpperCase().includes(this.buscar.toUpperCase()) ){
+                    if(
+                        data.nombre.toUpperCase().includes(this.buscar.toUpperCase()) ||
+                        data.codigo.toUpperCase().includes(this.buscar.toUpperCase())
+                    ){
                         this.alumnos.push(data);
                     }
                 }
@@ -41,26 +47,21 @@ createApp({
         modificarAlumno(alumno){
             this.accion = 'modificar';
             this.id = alumno.id;
-            this.alumno.codigo = alumno.codigo;
-            this.alumno.nombre = alumno.nombre;
-            this.alumno.direccion = alumno.direccion;
-            this.alumno.email = alumno.email;
-            this.alumno.telefono = alumno.telefono;
+            this.alumno = { ...alumno };
         },
         guardarAlumno() {
             let datos = {
                 id: this.accion=='modificar' ? this.id : this.getId(),
-                codigo: this.alumno.codigo,
-                nombre: this.alumno.nombre,
-                direccion: this.alumno.direccion,
-                email: this.alumno.email,
-                telefono: this.alumno.telefono
-            }, codigoDuplicado = this.buscarAlumno(datos.codigo);
+                ...this.alumno
+            };
+
+            let codigoDuplicado = this.buscarAlumno(datos.codigo);
             if(codigoDuplicado && this.accion=='nuevo'){
-                alert("El codigo del alumno ya existe, "+ codigoDuplicado.nombre);
-                return; //Termina la ejecucion de la funcion
+                alert("El código del alumno ya existe");
+                return;
             }
-            localStorage.setItem( datos.id, JSON.stringify(datos));
+
+            localStorage.setItem(datos.id, JSON.stringify(datos));
             this.limpiarFormulario();
             this.obtenerAlumnos();
         },
@@ -70,18 +71,24 @@ createApp({
         limpiarFormulario(){
             this.accion = 'nuevo';
             this.id = 0;
-            this.alumno.codigo = '';
-            this.alumno.nombre = '';
-            this.alumno.direccion = '';
-            this.alumno.email = '';
-            this.alumno.telefono = '';
+            this.alumno = {
+                codigo:"",
+                nombre:"",
+                direccion:"",
+                municipio:"",
+                departamento:"",
+                telefono:"",
+                fecha_nacimiento:"",
+                sexo:"",
+                email:""
+            };
         },
         buscarAlumno(codigo=''){
             let n = localStorage.length;
-            for(let i = 0; i < n; i++){
+            for(let i=0; i<n; i++){
                 let key = localStorage.key(i);
                 let datos = JSON.parse(localStorage.getItem(key));
-                if(datos?.codigo && datos.codigo.trim().toUpperCase() == codigo.trim().toUpperCase()){
+                if(datos?.codigo && datos.codigo.toUpperCase() === codigo.toUpperCase()){
                     return datos;
                 }
             }
