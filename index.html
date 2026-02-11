@@ -57,13 +57,13 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="alumno in alumnos" :key="alumno.id" @click="modificarAlumno(alumno)">
+                    <tr v-for="alumno in alumnos" :key="alumno.idAlumno" @click="modificarAlumno(alumno)"></tr>
                         <td>{{ alumno.codigo }}</td>
                         <td>{{ alumno.nombre }}</td>
                         <td>{{ alumno.municipio }}</td>
                         <td>{{ alumno.telefono }}</td>
                         <td>
-                            <button class="btn btn-danger btn-sm" @click="eliminarAlumno(alumno.id, $event)">DEL</button>
+                           <button class="btn btn-danger" @click="eliminarAlumno(alumno.idAlumno, $event)">DEL</button>
                         </td>
                     </tr>
                 </tbody>
