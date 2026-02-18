@@ -1,86 +1,39 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <title>Registro de Alumnos</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title></title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" />
 </head>
 <body>
-
-<div class="container mt-4" id="app">
-    <div class="row">
-        <div class="col-6">
-            <form @submit.prevent="guardarAlumno" @reset.prevent="limpiarFormulario">
-                <div class="card">
-                    <div class="card-header bg-dark text-white">
-                        REGISTRO DE ALUMNOS
-                    </div>
-                    <div class="card-body">
-
-                        <input class="form-control mb-2" placeholder="Código" v-model="alumno.codigo" required>
-                        <input class="form-control mb-2" placeholder="Nombre" v-model="alumno.nombre" required>
-                        <input class="form-control mb-2" placeholder="Dirección" v-model="alumno.direccion" required>
-                        <input class="form-control mb-2" placeholder="Municipio" v-model="alumno.municipio" required>
-                        <input class="form-control mb-2" placeholder="Departamento" v-model="alumno.departamento" required>
-                        <input class="form-control mb-2" placeholder="Teléfono" v-model="alumno.telefono" required>
-                        <input type="date" class="form-control mb-2" v-model="alumno.fecha_nacimiento" required>
-
-                        <select class="form-control mb-2" v-model="alumno.sexo" required>
-                            <option value="">Seleccione sexo</option>
-                            <option value="Masculino">Masculino</option>
-                            <option value="Femenino">Femenino</option>
-                        </select>
-
-                        <input type="email" class="form-control mb-2" placeholder="Email" v-model="alumno.email" required>
-
-                    </div>
-                    <div class="card-footer text-center">
-                        <button class="btn btn-primary">GUARDAR</button>
-                        <button type="reset" class="btn btn-warning">NUEVO</button>
+    <div id="app">
+        <nav class="navbar navbar-expand-lg bg-light">
+            <div class="container-fluid">
+                <a class="navbar-brand" href="#">::.. SISTEMA ACADEMICO ..::</a>
+                <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+                    <div class="navbar-nav">
+                        <a class="nav-link" href="#" @click="abrirVentana('alumnos')">Alumnos</a>
+                        <a class="nav-link" href="#" @clik="abrirVentana('materias')">Materias</a>
+                        <a class="nav-link" href="#" @clik="abrirVentana('docentes')">Docentes</a>
+                        <a class="nav-link" href="#" @clik="abrirVentana('matriculas')">Matriculas</a>
+                        <a class="nav-link" @clik="abrirVentana('inscripciones')">Inscripciones</a>
                     </div>
                 </div>
-            </form>
-        </div>
-
-        <div class="col-6">
-            <input type="search" class="form-control mb-2" placeholder="Buscar alumno" v-model="buscar" @keyup="obtenerAlumnos()">
-
-            <table class="table table-striped">
-                <thead>
-                    <tr>
-                        <th>Código</th>
-                        <th>Nombre</th>
-                        <th>Municipio</th>
-                        <th>Teléfono</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr v-for="alumno in alumnos" :key="alumno.idAlumno" @click="modificarAlumno(alumno)"></tr>
-                        <td>{{ alumno.codigo }}</td>
-                        <td>{{ alumno.nombre }}</td>
-                        <td>{{ alumno.municipio }}</td>
-                        <td>{{ alumno.telefono }}</td>
-                        <td>
-                           <button class="btn btn-danger" @click="eliminarAlumno(alumno.idAlumno, $event)">DEL</button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+            </div>
+        </nav>
+        <div id="appSistema" class="container-fluid">
+            <alumnos @buscar='buscar("busqueda_alumnos","obtenerAlumnos")' :forms="forms" ref="alumnos" v-show="forms.alumnos.mostrar"></alumnos>
+            <busqueda_alumnos @modificar='modificar("alumnos","modificarAlumno", $event)' ref="busqueda_alumnos" v-show="forms.busqueda_alumnos.mostrar"></busqueda_alumnos>
         </div>
     </div>
-</div>
-
-
- <script src="https://cdnjs.cloudflare.com/ajax/libs/dexie/4.2.0/dexie.min.js" 
-    integrity="sha512-LuXLH9xON6/aAGYxi4Z1Dx8588Z80gY3iMmGtUlYmblUc1ulC/cGHuANXIvm8fnIWp5ShUk2MRBIWylGguXF9g==" 
-    crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
-<script src="main.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/dexie/4.2.0/dexie.min.js" integrity="sha512-LuXLH9xON6/aAGYxi4Z1Dx8588Z80gY3iMmGtUlYmblUc1ulC/cGHuANXIvm8fnIWp5ShUk2MRBIWylGguXF9g==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dexie/4.2.0/dexie.min.js"
+        integrity="sha512-LuXLH9xON6/aAGYxi4Z1Dx8588Z80gY3iMmGtUlYmblUc1ulC/cGHuANXIvm8fnIWp5ShUk2MRBIWylGguXF9g=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <script src="componentes/alumnos.js"></script>
+    <script src="componentes/busqueda_alumnos.js"></script>
+    <script src="main.js"></script>
 </body>
 </html>
