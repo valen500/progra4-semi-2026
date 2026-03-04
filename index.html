@@ -3,54 +3,239 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title></title>
+    <title>Sistema Académico</title>
+
+    <!-- BOOTSTRAP -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" />
+
+    <!-- ALERTIFY -->
     <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.14.0/build/css/alertify.min.css"/>
-    <!-- Default theme -->
     <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.14.0/build/css/themes/default.min.css"/>
-    <!-- Semantic UI theme -->
-    <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/alertifyjs@1.14.0/build/css/themes/semantic.min.css"/>
+
+    
+    <style>
+        body {
+            background: linear-gradient(135deg, #f0f4ff, #ffffff);
+            min-height: 100vh;
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        /* NAVBAR */
+        .navbar {
+            background: linear-gradient(90deg, #0d6efd, #0b5ed7);
+        }
+
+        .navbar-brand,
+        .nav-link {
+            color: #fff !important;
+        }
+
+        .nav-link {
+            font-weight: 500;
+            margin-right: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-link:hover {
+            text-decoration: underline;
+            transform: translateY(-1px);
+        }
+
+        /* CONTENEDOR PRINCIPAL */
+        #appSistema {
+            padding: 20px;
+        }
+
+        /* FORMULARIOS */
+        form {
+            background: #ffffff;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+            margin-bottom: 30px;
+        }
+
+        h2, h3 {
+            font-weight: bold;
+            color: #0d6efd;
+            margin-bottom: 20px;
+        }
+
+        /* INPUTS */
+        .form-control,
+        .form-select {
+            border-radius: 10px;
+            padding: 10px 14px;
+            border: 1px solid #ced4da;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus,
+        .form-select:focus {
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 0.2rem rgba(13,110,253,.15);
+        }
+
+        label {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        /* BOTONES */
+        .btn {
+            border-radius: 30px;
+            padding: 8px 20px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #0d6efd, #084298);
+            border: none;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 15px rgba(13,110,253,0.3);
+        }
+
+        .btn-secondary {
+            border-radius: 30px;
+        }
+
+        /* TABLAS */
+        table {
+            background: #fff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.05);
+        }
+
+        thead {
+            background: #0d6efd;
+            color: white;
+        }
+
+        th, td {
+            vertical-align: middle !important;
+        }
+    </style>
 </head>
+
 <body>
-    <div id="app">
-        <nav class="navbar navbar-expand-lg bg-light">
-            <div class="container-fluid">
-                <a class="navbar-brand" href="#">::.. SISTEMA ACADEMICO ..::</a>
-                <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
-                    <div class="navbar-nav">
-                        <a class="nav-link" href="#" @click="abrirVentana('alumnos')">Alumnos</a>
-                        <a class="nav-link" href="#" @click="abrirVentana('materias')">Materias</a>
-                        <a class="nav-link" href="#" @click="abrirVentana('docentes')">Docentes</a>
-                        <a class="nav-link" href="#" @click="abrirVentana('matriculas')">Matriculas</a>
-                        <a class="nav-link" href="#" @click="abrirVentana('inscripciones')">Inscripciones</a>
-                    </div>
+<div id="app">
+
+    <!-- NAVBAR -->
+    <nav class="navbar navbar-expand-lg shadow">
+        <div class="container-fluid">
+            <a class="navbar-brand fw-bold" href="#">
+                📚 SISTEMA ACADÉMICO
+            </a>
+
+            <div class="collapse navbar-collapse">
+                <div class="navbar-nav">
+                    <a class="nav-link" href="#" @click="abrirVentana('alumnos')">Alumnos</a>
+                    <a class="nav-link" href="#" @click="abrirVentana('materias')">Materias</a>
+                    <a class="nav-link" href="#" @click="abrirVentana('docentes')">Docentes</a>
+                    <a class="nav-link" href="#" @click="abrirVentana('autor')">Autor</a>
+                    <a class="nav-link" href="#" @click="abrirVentana('libros')">Libros</a>
+                    <a class="nav-link" href="#" @click="abrirVentana('matriculas')">Matrículas</a>
+                    <a class="nav-link" href="#" @click="abrirVentana('inscripciones')">Inscripciones</a>
                 </div>
             </div>
-        </nav>
-        <div id="appSistema" class="container-fluid">
-            <alumnos @buscar='buscar("busqueda_alumnos","obtenerAlumnos")' :forms="forms" ref="alumnos" v-show="forms.alumnos.mostrar"></alumnos>
-            <busqueda_alumnos @modificar='modificar("alumnos","modificarAlumno", $event)' ref="busqueda_alumnos" v-show="forms.busqueda_alumnos.mostrar"></busqueda_alumnos>
-
-            <materias @buscar='buscar("busqueda_materias","obtenerMaterias")' :forms="forms" ref="materias" v-show="forms.materias.mostrar"></materias>
-            <busqueda_materias @modificar='modificar("materias","modificarMateria", $event)' ref="busqueda_materias" v-show="forms.busqueda_materias.mostrar"></busqueda_materias>
-
-            <docentes @buscar='buscar("busqueda_docentes","obtenerDocentes")' :forms="forms" ref="docentes" v-show="forms.docentes.mostrar"></docentes>
-            <busqueda_docentes @modificar='modificar("docentes","modificarDocente", $event)' ref="busqueda_docentes" v-show="forms.busqueda_docentes.mostrar"></busqueda_docentes>
         </div>
+    </nav>
+
+    <!-- CONTENIDO -->
+    <div id="appSistema" class="container-fluid mt-4">
+
+        <alumnos 
+            @buscar='buscar("busqueda_alumnos","obtenerAlumnos")'
+            :forms="forms"
+            ref="alumnos"
+            v-show="forms.alumnos.mostrar">
+        </alumnos>
+
+        <busqueda_alumnos 
+            @modificar='modificar("alumnos","modificarAlumno", $event)'
+            ref="busqueda_alumnos"
+            v-show="forms.busqueda_alumnos.mostrar">
+        </busqueda_alumnos>
+
+        <materias 
+            @buscar='buscar("busqueda_materias","obtenerMaterias")'
+            :forms="forms"
+            ref="materias"
+            v-show="forms.materias.mostrar">
+        </materias>
+
+        <busqueda_materias 
+            @modificar='modificar("materias","modificarMateria", $event)'
+            ref="busqueda_materias"
+            v-show="forms.busqueda_materias.mostrar">
+        </busqueda_materias>
+
+        <docentes 
+            @buscar='buscar("busqueda_docentes","obtenerDocentes")'
+            :forms="forms"
+            ref="docentes"
+            v-show="forms.docentes.mostrar">
+        </docentes>
+
+        <busqueda_docentes 
+            @modificar='modificar("docentes","modificarDocente", $event)'
+            ref="busqueda_docentes"
+            v-show="forms.busqueda_docentes.mostrar">
+        </busqueda_docentes>
+
+        <autor 
+            @buscar='buscar("busqueda_autor","obtenerAutores")'
+            :forms="forms"
+            ref="autor"
+            v-show="forms.autor.mostrar">
+        </autor>
+
+        <busqueda_autor 
+            @modificar='modificar("autor","modificarAutor",$event)'
+            ref="busqueda_autor"
+            v-show="forms.busqueda_autor.mostrar">
+        </busqueda_autor>
+
+        <libros 
+            @buscar='buscar("busqueda_libros","obtenerLibros")'
+            :forms="forms"
+            ref="libros"
+            v-show="forms.libros.mostrar">
+        </libros>
+
+        <busqueda_libros 
+            @modificar='modificar("libros","modificarLibro",$event)'
+            ref="busqueda_libros"
+            v-show="forms.busqueda_libros.mostrar">
+        </busqueda_libros>
+
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/crypto-js@4.1.1/crypto-js.min.js"></script>
-    <script src="//cdn.jsdelivr.net/npm/alertifyjs@1.14.0/build/alertify.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/dexie/4.2.0/dexie.min.js"
-        integrity="sha512-LuXLH9xON6/aAGYxi4Z1Dx8588Z80gY3iMmGtUlYmblUc1ulC/cGHuANXIvm8fnIWp5ShUk2MRBIWylGguXF9g=="
-        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-    <script src="componentes/alumnos.js"></script>
-    <script src="componentes/busqueda_alumnos.js"></script>
-    <script src="componentes/materias.js"></script>
-    <script src="componentes/busqueda_materias.js"></script>
-    <script src="componentes/docentes.js"></script>
-    <script src="componentes/busqueda_docentes.js"></script>
-    <script src="main.js"></script>
+</div>
+
+<!-- LIBRERÍAS -->
+<script src="https://cdn.jsdelivr.net/npm/crypto-js@4.1.1/crypto-js.min.js"></script>
+<script src="//cdn.jsdelivr.net/npm/alertifyjs@1.14.0/build/alertify.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dexie/4.2.0/dexie.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+
+<!-- COMPONENTES -->
+<script src="componentes/alumnos.js"></script>
+<script src="componentes/busqueda_alumnos.js"></script>
+<script src="componentes/materias.js"></script>
+<script src="componentes/busqueda_materias.js"></script>
+<script src="componentes/docentes.js"></script>
+<script src="componentes/busqueda_docentes.js"></script>
+<script src="componentes/autor.js"></script>
+<script src="componentes/busqueda_autor.js"></script>
+<script src="componentes/libros.js"></script>
+<script src="componentes/busqueda_libros.js"></script>
+<script src="main.js"></script>
+
 </body>
 </html>
