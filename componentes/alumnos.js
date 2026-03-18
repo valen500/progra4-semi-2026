@@ -39,7 +39,7 @@ const alumnos = {
                 email: this.alumno.email,
                 telefono: this.alumno.telefono
             };
-            datos.hash = sha256(JSON.stringify(datos));
+            //datos.hash = sha256(JSON.stringify(datos));
             this.buscar = datos.codigo;
             //await this.obtenerAlumnos();
 
@@ -58,7 +58,7 @@ const alumnos = {
             //this.obtenerAlumnos();
         },
         getId(){
-            return new Date().getTime();
+            return uuid.v4();
         },
         limpiarFormulario(){
             this.accion = 'nuevo';
