@@ -1,89 +1,154 @@
 const buscar_materias = {
-    props:['forms'],
-    data(){
-        return{
-            buscar:'',
-            materias:[]
+    props: ['forms'],
+    data() {
+        return {
+            buscar: '',
+            materias: []
         }
     },
-    methods:{
-        cerrarFormularioBusquedaMateria(){
+
+    methods: {
+
+        cerrarFormularioBusquedaMateria() {
             this.forms.busqueda_materias.mostrar = false;
         },
-        modificarMateria(materia){
+
+        modificarMateria(materia) {
             this.$emit('modificar', materia);
         },
-        async obtenerMaterias(){
-            this.materias = await db.materias.orderBy('codigo').filter(
-                materia => materia.codigo.toLowerCase().includes(this.buscar.toLowerCase()) 
-                    || materia.nombre.toLowerCase().includes(this.buscar.toLowerCase())
-            ).toArray();
-            if( this.materias.length<1 && this.buscar.length<=0){
-                fetch(`private/modulos/materias/materia.php?accion=consultar`)
-                    .then(response=>response.json())
-                    .then(data=>{
-                        this.materias = data;
-                        db.materias.bulkAdd(data);
-                    });
+
+        obtenerMaterias() {
+
+            const db = window.db;
+
+            if (!db) {
+                alertify.error("Base de datos no lista");
+                return;
+            }
+
+            try {
+
+                let resultados = [];
+                let filtro = `%${this.buscar}%`;
+
+                db.exec({
+                    sql: `
+                        SELECT * FROM materias
+                        WHERE codigo LIKE ?
+                        OR nombre LIKE ?
+                        ORDER BY codigo ASC
+                    `,
+                    bind: [filtro, filtro],
+                    rowMode: "object",
+                    resultRows: resultados
+                });
+
+                this.materias = resultados;
+
+            } catch (error) {
+                console.error(error);
+                alertify.error("Error al buscar materias");
             }
         },
-        async eliminarMateria(materia, e){
+
+        eliminarMateria(materia, e) {
+
             e.stopPropagation();
-            alertify.confirm('Eliminar materias', `¿Está seguro de eliminar el materia ${materia.nombre}?`, async e=>{
-                await db.materias.delete(materia.idMateria);
-                fetch(`private/modulos/materias/materia.php?accion=eliminar&materias=${JSON.stringify(materia)}`)
-                    .then(response=>response.json())
-                    .then(data=>{
-                        if(data!=true) alertify.error(`Error al sincronizar con el servidor: ${data}`);
-                    });
-                this.obtenerMaterias();
-                alertify.success(`Materia ${materia.nombre} eliminada correctamente`);
-            }, () => {
-                //No hacer nada
-            });
-        },
+
+            const db = window.db;
+
+            if (!db) {
+                alertify.error("Base de datos no lista");
+                return;
+            }
+
+            alertify.confirm(
+                'Eliminar materia',
+                `¿Eliminar ${materia.nombre}?`,
+                () => {
+
+                    try {
+
+                        db.exec({
+                            sql: `DELETE FROM materias WHERE idMateria = ?`,
+                            bind: [materia.idMateria]
+                        });
+
+                        this.obtenerMaterias();
+                        alertify.success(`Materia eliminada`);
+
+                    } catch (error) {
+                        console.error(error);
+                        alertify.error("Error al eliminar");
+                    }
+
+                },
+                () => {}
+            );
+        }
     },
+
+    mounted() {
+        this.obtenerMaterias();
+    },
+
     template: `
-        <div v-draggable>
-            <div class="card text-bg-dark">
-                <div class="card-header">
-                    <div class="d-flex justify-content-between">
-                        <div class="p-1">
-                            BUSQUEDA DE MATERIAS
-                        </div>
-                        <div>
-                            <button type="button" class="btn-close btn-close-white" aria-label="Close" @click="cerrarFormularioBusquedaMateria"></button>
-                        </div>
-                    </div>
-                </div>
-                <div class="card-body">
-                    <table class="table table-striped table-hover" id="tblMaterias">
-                        <thead>
-                            <tr>
-                                <th colspan="6">
-                                    <input autocomplete="off" type="search" @keyup="obtenerMaterias()" v-model="buscar" placeholder="Buscar materia" class="form-control">
-                                </th>
-                            </tr>
-                            <tr>
-                                <th>CODIGO</th>
-                                <th>NOMBRE</th>
-                                <th>UV</th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <tr v-for="materia in materias" :key="materia.idMateria" @click="modificarMateria(materia)">
-                                <td>{{ materia.codigo }}</td>
-                                <td>{{ materia.nombre }}</td>
-                                <td>{{ materia.uv }}</td>
-                                <td>
-                                    <button class="btn btn-danger" @click="eliminarMateria(materia, $event)">DEL</button>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+    <div v-draggable style="position:absolute; top:120px; left:200px;">
+        <div class="card text-bg-dark shadow">
+
+            <div class="card-header d-flex justify-content-between">
+                <div>📘 BUSQUEDA DE MATERIAS</div>
+                <button class="btn-close btn-close-white" @click="cerrarFormularioBusquedaMateria"></button>
+            </div>
+
+            <div class="card-body">
+
+                <table class="table table-striped table-hover">
+
+                    <thead>
+                        <tr>
+                            <th colspan="4">
+                                <input 
+                                    type="search"
+                                    v-model="buscar"
+                                    @keyup="obtenerMaterias"
+                                    placeholder="Buscar materia"
+                                    class="form-control">
+                            </th>
+                        </tr>
+
+                        <tr>
+                            <th>CODIGO</th>
+                            <th>NOMBRE</th>
+                            <th>UV</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        <tr v-for="materia in materias"
+                            :key="materia.idMateria"
+                            @click="modificarMateria(materia)">
+
+                            <td>{{ materia.codigo }}</td>
+                            <td>{{ materia.nombre }}</td>
+                            <td>{{ materia.uv }}</td>
+
+                            <td>
+                                <button 
+                                    class="btn btn-danger btn-sm"
+                                    @click="eliminarMateria(materia, $event)">
+                                    DEL
+                                </button>
+                            </td>
+
+                        </tr>
+                    </tbody>
+
+                </table>
+
             </div>
         </div>
+    </div>
     `
 };

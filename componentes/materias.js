@@ -1,118 +1,185 @@
+
 const materias = {
-    props:['forms'],
-    data(){
-        return{
-            materia:{
-                idMateria:0,
-                codigo:"",
-                nombre:"",
-                uv:'',
+    props: ['forms'],
+    data() {
+        return {
+            materia: {
+                idMateria: 0,
+                codigo: "",
+                nombre: "",
+                uv: ''
             },
-            accion:'nuevo',
-            idMateria:0,
-            data_materias:[]
+            accion: 'nuevo',
+            idMateria: 0,
+            dbReady: false
         }
     },
-    methods:{
-        cerrarFormularioMateria(){
+
+    mounted() {
+        this.checkDatabase();
+    },
+
+    methods: {
+        checkDatabase() {
+            if (!window.db) {
+                setTimeout(() => this.checkDatabase(), 100);
+                return;
+            }
+
+            try {
+                const result = window.db.exec({
+                    sql: "SELECT name FROM sqlite_master WHERE type='table' AND name='materias'",
+                    rowMode: 'object'
+                });
+
+                if (result && result.length > 0) {
+                    this.dbReady = true;
+                    console.log(" Tabla materias verificada");
+                }
+            } catch (err) {
+                setTimeout(() => this.checkDatabase(), 1000);
+            }
+        },
+
+        cerrarFormularioMateria() {
             this.forms.materias.mostrar = false;
         },
-        buscarMateria(){
+
+        buscarMateria() {
             this.forms.busqueda_materias.mostrar = !this.forms.busqueda_materias.mostrar;
             this.$emit('buscar');
         },
-        modificarMateria(materia){
+
+        modificarMateria(materia) {
             this.accion = 'modificar';
             this.idMateria = materia.idMateria;
-            this.materia.codigo = materia.codigo;
-            this.materia.nombre = materia.nombre;
-            this.materia.uv = materia.uv;
+            Object.assign(this.materia, materia);
         },
-        async guardarMateria() {
-            let datos = {
-                idMateria: this.accion=='modificar' ? this.idMateria : this.getId(),
-                codigo: this.materia.codigo,
-                nombre: this.materia.nombre,
-                uv: this.materia.uv,
-            };
-            this.buscar = datos.codigo;
-            //await this.obtenerMaterias();
 
-            if(this.data_materias.length > 0 && this.accion=='nuevo'){
-                alertify.error(`El codigo del materia ya existe, ${this.data_materias[0].nombre}`);
-                return; //Termina la ejecucion de la funcion
+        async guardarMateria() {
+            const db = window.db;
+
+            if (!db || !this.dbReady) {
+                alertify.error("Base de datos no lista");
+                return;
             }
-            db.materias.put(datos);
-            fetch(`private/modulos/materias/materia.php?accion=${this.accion}&materias=${JSON.stringify(datos)}`)
-                .then(response=>response.json())
-                .then(data=>{
-                    if(data!=true) alertify.error(`Error al sincronizar con el servidor: ${data}`);
+
+            try {
+                const existe = db.exec({
+                    sql: "SELECT * FROM materias WHERE codigo = ?",
+                    bind: [this.materia.codigo],
+                    rowMode: "object"
                 });
-            this.limpiarFormulario();
-            //this.obtenerMaterias();
-            alertify.success(`Materia ${datos.nombre} guardada correctamente`);
+
+                if (existe && existe.length > 0 && this.accion === 'nuevo') {
+                    alertify.error(`El código ya existe: ${existe[0].nombre}`);
+                    return;
+                }
+
+                db.exec('BEGIN');
+
+                if (this.accion === 'nuevo') {
+                    db.exec({
+                        sql: `INSERT INTO materias (codigo, nombre, uv)
+                              VALUES (?, ?, ?)`,
+                        bind: [
+                            this.materia.codigo,
+                            this.materia.nombre,
+                            this.materia.uv
+                        ]
+                    });
+
+                    const result = db.exec({
+                        sql: "SELECT last_insert_rowid() as id",
+                        rowMode: "object"
+                    });
+
+                    this.idMateria = result[0].id;
+
+                } else {
+                    db.exec({
+                        sql: `UPDATE materias SET 
+                                codigo = ?, 
+                                nombre = ?, 
+                                uv = ?
+                              WHERE idMateria = ?`,
+                        bind: [
+                            this.materia.codigo,
+                            this.materia.nombre,
+                            this.materia.uv,
+                            this.idMateria
+                        ]
+                    });
+                }
+
+                db.exec('COMMIT');
+
+                alertify.success(`Materia ${this.materia.nombre} guardada correctamente`);
+                this.limpiarFormulario();
+
+            } catch (error) {
+                db.exec('ROLLBACK');
+                console.error(error);
+                alertify.error("Error al guardar");
+            }
         },
-        getId(){
-            return uuid.v4();
-        },
-        limpiarFormulario(){
+
+        limpiarFormulario() {
             this.accion = 'nuevo';
             this.idMateria = 0;
-            this.materia.codigo = '';
-            this.materia.nombre = '';
-            this.materia.uv = '';
-        },
+            this.materia = {
+                idMateria: 0,
+                codigo: "",
+                nombre: "",
+                uv: ''
+            };
+        }
     },
+
     template: `
-    <div v-draggable>
-        <form id="frmMaterias" @submit.prevent="guardarMateria" @reset.prevent="limpiarFormulario">
-            <div class="card text-bg-dark">
-                <div class="card-header">
-                    <div class="d-flex justify-content-between">
-                        <div class="p-1">
-                            REGISTRO DE MATERIAS
-                        </div>
-                        <div>
-                            <button type="button" class="btn-close btn-close-white" aria-label="Close" @click="cerrarFormularioMateria"></button>
-                        </div>
-                    </div>
+    <div v-draggable style="position:absolute; top:80px; left:80px;">
+        <form @submit.prevent="guardarMateria" @reset.prevent="limpiarFormulario">
+
+            <div class="card text-bg-dark shadow">
+
+                <div class="card-header d-flex justify-content-between">
+                    <div>📘 REGISTRO DE MATERIAS</div>
+                    <button type="button" class="btn-close btn-close-white" @click="cerrarFormularioMateria"></button>
                 </div>
+
                 <div class="card-body">
+
                     <div class="row p-1">
-                        <div class="col-3">
-                            CODIGO:
-                        </div>
-                        <div class="col-3">
-                            <input placeholder="codigo" required v-model="materia.codigo" type="text" class="form-control">
+                        <div class="col-4">CODIGO:</div>
+                        <div class="col-5">
+                            <input v-model="materia.codigo" required class="form-control">
                         </div>
                     </div>
+
                     <div class="row p-1">
-                        <div class="col-3">
-                            NOMBRE:
-                        </div>
-                        <div class="col-6">
-                            <input placeholder="nombre" required v-model="materia.nombre" type="text" class="form-control">
+                        <div class="col-4">NOMBRE:</div>
+                        <div class="col-8">
+                            <input v-model="materia.nombre" required class="form-control">
                         </div>
                     </div>
+
                     <div class="row p-1">
-                        <div class="col-3">
-                            UV:
-                        </div>
-                        <div class="col-9">
-                            <input placeholder="uv" required v-model="materia.uv" type="text" class="form-control">
+                        <div class="col-4">UV:</div>
+                        <div class="col-4">
+                            <input v-model="materia.uv" required class="form-control">
                         </div>
                     </div>
+
                 </div>
-                <div class="card-footer">
-                    <div class="row">
-                        <div class="col text-center">
-                            <button type="submit" id="btnGuardarMateria" class="btn btn-primary">GUARDAR</button>
-                            <button type="reset" id="btnCancelarMateria" class="btn btn-warning">NUEVO</button>
-                            <button type="button" @click="buscarMateria" id="btnBuscarMateria" class="btn btn-success">BUSCAR</button>
-                        </div>
-                    </div>
+
+                <div class="card-footer text-center">
+                    <button type="submit" class="btn btn-primary">GUARDAR</button>
+                    <button type="reset" class="btn btn-warning">NUEVO</button>
+                    <button type="button" @click="buscarMateria" class="btn btn-success">BUSCAR</button>
                 </div>
+
             </div>
+
         </form>
     </div>
     `
