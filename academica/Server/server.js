@@ -3,6 +3,11 @@ var http = require('http').Server(),
 
 io.on('connect', (socket) => {
     console.log('Un usuario se ha conectado');
+
+    socket.on('mensajeRecibido', (data) => {
+        console.log(data);
+        io.emit('mensajeEnviar', data);
+    })
 });
 
 http.listen(3000, () => {
