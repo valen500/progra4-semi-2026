@@ -12,13 +12,16 @@
     "bootstrap": "^5.2.3",
     "laravel-vite-plugin": "^1.0.0",
     "sass": "^1.56.1",
+  
     "vite": "^6.0.0",
     "vue": "^3.2.37"
   },
   "dependencies": {
     "alertifyjs": "^1.14.0",
+     "crypto": "^1.0.1",
     "dexie": "^4.4.2",
     "socket.io": "^4.8.3",
+    "mongodb": "^7.2.0",
     "uuid": "^14.0.0"
   }
 }
